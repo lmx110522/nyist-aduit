@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教研室查看</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+        <div class="main-content">
+        <!-- 头部链接位置导航条 -->
+        <div class="filter-bar">
+            <span>
+                <a href="">教研室查看</a>
+            </span>
+        </div>
+
+        <!-- 主显示区 -->
+        <div class="main">
+            <table id="table-jysck"></table>
+
+            <!-- 模态框 -->
+            <div class="modal fade" id="rjxy" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title">
+                                点击查看详情查看教研室详情
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <table id="yoyoyo"></table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="submit-room btn btn-primary" data-dismiss="modal">
+                                确认提交
+                            </button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+        </div>
+        <!-- main显示主区 -->
+</body>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table-zh-CN.min.js"></script>
+<link rel="stylesheet" href="/sweetalert/sweetalert.css">
+<script src="/sweetalert/sweetalert.min.js"></script>
+<script src="/sweetalert/xlalert.js"></script>
+<script src="/js/base.js"></script>
+<script>
+    $(function () {
+        $.getJSON('/jys/jysView',function (result) {
+            var datas = []
+            if(result.status == 200){
+                var resultData = result.data;
+                for(var i = 0;i < resultData.length;i++){
+                    var data = {
+                        class: resultData[i].user.id,
+                        xueyuanName: resultData[i].user.username,
+                        numMax: resultData[i].jysAllNums,
+                        numUp: resultData[i].jysUploadNums
+                    }
+                    datas.push(data);
+                }
+                $('#table-jysck').bootstrapTable({
+                    cache: false,   //缓存
+                    pagination: true,   //分页
+                    pageSize: 5, //默认一页几条
+                    pageList: [5, 10], //备选显示条数
+                    search: true,  //开启查找
+                    showRefresh: true,
+                    striped: true,
+                    uniqueID: "xueyuanName",
+                    columns: [{
+                        field: 'xueyuanName',
+                        title: '学院名称'
+                    }, {
+                        field: 'numMax',
+                        title: '教研室总数',
+                    }, {
+                        field: 'numUp',
+                        title: '教研室上传数',
+                        sortable: true,
+                        sortOrder: "asc",
+                    }, {
+                        field: 'mydo',
+                        title: '操作',
+                        width: '15%',
+                        formatter: toreview,
+                        events: operateEvents,
+                    }
+                    ],
+                    data: datas
+                });
+            }
+
+        })
+
+    })
+    window.operateEvents = {
+        'click .toreviewevent': function (e, value, row, index) {
+            var JysNums = $(this).attr('JysNums');
+            if(JysNums <= 0){
+                zlalert.alertInfoToast('该系院没有教研室数目为零！');
+            }
+            else{
+                $.getJSON("/jys/getJysByXyId",'id='+row.class,function (result) {
+                    if(result.status == 200){
+                        var c_datas = [];
+                        var userList = result.data.userList;
+                        for(var i = 0;i < userList.length;i++){
+                            var data = {
+                                id:userList[i].id,
+                                jysName: userList[i].username,
+                                isForm: userList[i].tuserByParentId.username,
+                                isUp: userList[i].isUpload
+                            }
+                            c_datas.push(data);
+                        }
+                        //刷新数据
+                        $('#yoyoyo').bootstrapTable('load',c_datas);
+                        //查看教研室模态框
+                        $('#yoyoyo').bootstrapTable({
+                            cache: false,   //缓存
+                            // pagination: true,   //分页
+                            // // sortable: true,
+                            // // sortOrder: "asc",
+                            // pageSize: 5, //默认一页几条
+                            // pageList: [5, 10], //备选显示条数
+                            search: true,  //开启查找
+                            showRefresh: true,
+                            striped: true,
+                            // detailView: true,
+                            uniqueID: "jysName",
+                            columns: [{
+                                field: 'jysName',
+                                title: '教研室名称'
+                            }, {
+                                field: 'isForm',
+                                title: '所属院系'
+                            }, {
+                                field: 'isUp',
+                                title: '是否上传文件'
+                            }, {
+                                field: 'mydo',
+                                title: '操作',
+                                formatter: gotolink,
+                                events: operateEvents,
+                            }
+                            ],
+                            data: c_datas
+                        });
+
+                    }
+                })
+                $("#rjxy").modal('show');
+            }
+
+
+        },
+        'click .gotolinkevent': function (e, value, row, index) {
+            $("#" + row.class).modal('show');
+            var isUp = $(this).attr('isUp');
+//            if(isUp == '未上传'){
+//                zlalert.alertInfoToast("目前是文件未上传状态！");
+//                e.preventDefault();
+//            }
+        }
+    }
+
+    function toreview(value, row, index) {
+        return [
+            '<button class="btn btn-default toreviewevent" JysNums='+row.numMax+'>教研室列表</button>'
+        ].join("")
+    }
+    function gotolink(value, row, index) {
+        return [
+            '<a href="/jys/jysAllMsgUI?id='+row.id+'"><button class="btn btn-default gotolinkevent" isUp='+row.isUp+'>查看教研室详情</button></a>'
+        ].join("")
+    }
+
+
+</script>
+
+</html>

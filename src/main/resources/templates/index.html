@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>南工标准教研室管理系统</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/sweetalert/sweetalert.css">
+    <script src="/sweetalert/sweetalert.min.js"></script>
+    <script src="/sweetalert/xlalert.js"></script>
+    <script>
+        $(function () {
+            $(".single-menu:first").addClass("menu-second-selected");
+            $("#editbtn").click(function (event) {
+                event.preventDefault();
+                if (this.innerHTML === "修改密码") {
+                    $('#password').attr("disabled", false);
+                    $('#password').removeAttr('type');
+                    $('#password').attr('type','text');
+                    this.innerHTML = "确认修改"
+                }
+                else {
+                    var password = $("#password").val();
+                    if(password.trim() == null || password.trim().length == 0){
+                        zlalert.alertError("密码不能为空！");
+                    }
+                    else{
+                        if(password.trim().length < 6){
+                            zlalert.alertInfo("密码不能小于6位！");
+                        }
+                        else{
+                            $.getJSON("/user/editPassword","password="+password.trim(),function (data) {
+                                if(data.status == 200){
+                                    zlalert.alertSuccess("密码修改成功！");
+                                }
+                            });
+                            $('#password').attr("disabled", true);
+                            $('#password').removeAttr('type');
+                            $('#password').attr('type','password');
+                            this.innerHTML = "修改密码"
+                        }
+
+                }
+                }
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <!-- 头部导航 -->
+    <#include "top.html">
+    <!-- 头部导航 结束-->
+
+
+    <!--左侧导航条-->
+   <#include "left.html">
+    <!-- 左侧导航条结束 -->
+
+
+    <div class="main-content">
+        <div class="filter-bar">
+            <span>
+                <a href="">个人信息</a>
+            </span>
+        </div>
+
+        <div class="main">
+            <div class="form-group col-xs-4">
+                <div class="input-group">
+                    <label class="input-group-addon" for="username">账号：</label>
+                    <input type="text" class="form-control" id="username" placeholder="登陆用户账号" value="${user.username}" disabled>
+                </div>
+                <div class="input-group">
+                    <label class="input-group-addon">所属身份：</label>
+                    <#if (user.role) == 0>
+                        <input type="text" class="form-control" id="yourId1" value="超级管理员" placeholder="所属职位" disabled>
+                        <#elseif (user.role) == 1 >
+                            <input type="text" class="form-control" id="yourId2" value="教导主任" placeholder="所属职位" disabled>
+                            <#elseif user.role == 2 >
+                                <input type="text" class="form-control" id="yourId3" value="系院负责人" placeholder="所属职位" disabled>
+                                <#elseif user.role == 3 >
+                                    <input type="text" class="form-control" id="yourId4" value="审核教师" placeholder="所属职位" disabled>
+                                    <#else>
+                                        <input type="text" class="form-control" id="yourId5" value="教研室负责人" placeholder="所属职位" disabled>
+                    </#if>
+
+                </div>
+                <div class="input-group">
+                    <label class="input-group-addon" for="password">账号密码：</label>
+                    <input type="password"  class="form-control" maxlength="10" onkeyup="this.value=this.value.replace(/\s+/g,'')" disabled id="password" value="${(user.password)!'123456'}" placeholder="默认密码123456" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+                </div>
+                <div class="mybtn">
+                    <button class="btn btn-primary" id="editbtn">修改密码</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main显示主区 -->
+</body>
+<script src="/js/base.js"></script>
+<script>
+
+</script>
+
+</html>

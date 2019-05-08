@@ -1,0 +1,21 @@
+spring:
+    application:
+      name: nyist-aduit
+    datasource:
+      driver-class-name: com.mysql.jdbc.Driver
+      username: root
+      password: 123456
+      url: jdbc:mysql://120.79.179.175/audit?characterEncoding=utf-8&useSSL=false
+      #type: com.alibaba.druid.pool.DruidDataSource
+    servlet:
+        multipart:
+            max-file-size: 100MB
+            max-request-size: 100MB
+    jpa:
+      show-sql: true
+    freemarker:
+      suffix: .html
+      settings:
+        number_format: 0.##
+server:
+  port: 80

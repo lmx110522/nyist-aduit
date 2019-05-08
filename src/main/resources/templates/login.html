@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+</head>
+<link rel="stylesheet" href="/css/bootstrap-3.3.7/css/bootstrap.css">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: '微软雅黑';
+    }
+
+    .loginpage {
+        background-image: url('/images/loginui.jpg');
+        background-repeat: no-repeat;
+        background-color: #b8e5f8;
+        background-position:center center;
+        background-size: cover;
+        /*background-attachment: fixed;*/
+        width: 100%;
+        height: 100vh;
+        overflow: auto;
+        padding-right: 15px;
+        position: relative;
+    }
+
+    .loginpage .loginpage-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -300px;
+        margin-left: -225px;
+        width: 450px;
+        height: 600px;
+        text-align: center;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 15px 10px rgba(26, 26, 26, .3);
+        opacity: 1;
+
+    }
+
+    .loginpage .loginpage-content .loginpage-head {
+        width: 430px;
+        height: 100px;
+        /* background: hotpink; */
+        margin: 10px;
+    }
+
+    .loginpage .loginpage-content .loginpage-head h1 {
+        padding-top: 30px;
+        color: #0084ff;
+        font-size: 45px;
+        text-shadow: 0 8px 9px #c4b59d, 0px -2px 1px #0084ff;
+
+    }
+
+    .loginpage .loginpage-content .loginpage-form {
+        width: 430px;
+        height: 350px;
+        /* background: hotpink; */
+        margin: 30px 10px;
+        color: #5386b6;
+
+    }
+
+    .loginpage-form label {
+        font-size: 20px;
+    }
+
+    .loginpage-form .form-group {
+        width: 350px;
+        margin: 30px auto;
+    }
+
+    .loginpage-form .login-button {
+        margin-top: 24px;
+    }
+
+    .loginpage-form .login-button button {
+        width: 350px;
+        margin: 10px auto;
+    }
+</style>
+<body>
+<div class="loginpage">
+    <div class="loginpage-content">
+        <div class="loginpage-head">
+            <h1>教研室审核系统</h1>
+        </div>
+        <div class="loginpage-form">
+
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" form="myForm" class="form-control" id="username" name="username" placeholder="输入您的账号名">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" form="myForm" class="form-control" id="password" name="password" placeholder="输入您的密码">
+            </div>
+            <div class="form-group">
+                <label for="username" style="display: block;">验证码</label>
+                <input style="height: 41px;;width:70%;display:inline-block;" type="text"  class="form-control" id="checknumber" placeholder="输入验证码">
+                <!--<img style=" height: 40px;margin-left: 10px;width: 45%;background: #012;"></img>-->
+                <img id="img" onclick="javascript:changeImg()" src="/getImage" /><span id="formtip"></span>
+                <!--<a href='#' onclick="javascript:changeImg()" style="color:white;"><label style="color:black;">看不清？</label></a>-->
+            </div>
+            <div class="login-button">
+                <form action="/login" onsubmit="return checkAll()"  id="myForm">
+                    <button type="button" class="btn btn-block btn-primary" id="login" onclick="return checkAll()">登录</button>
+                </form>
+            </div>
+        </div>
+        <div class="copy-right">
+            <p>© 2018 GIS.workspace All Rights Reserved</p>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" href="/sweetalert/sweetalert.css">
+<script src="/sweetalert/sweetalert.min.js"></script>
+<script src="/sweetalert/xlalert.js"></script>
+<script src="/js/paginathing.min.js"></script>
+<script src="/js/base.js"></script>
+<script>
+    //禁止页面回退
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+    //获取验证码
+    function changeImg(){
+        var img = document.getElementById("img");
+        img.src = "/getImage?date=" + new Date();
+    }
+    function checkAll(){
+        var username=$("#username").val();
+        var password=$("#password").val();
+        var checknumber=$("#checknumber").val();
+        if(username==""||username==null){
+            zlalert.alertInfoToast('对不起，登录账号不能为空。');
+            changeImg();
+            return false;
+        }
+        else if(password==""||password==null){
+            zlalert.alertInfoToast('对不起，密码不能为空。');
+            changeImg();
+            return false;
+        }
+        else if(checknumber==""||checknumber==null){
+            zlalert.alertInfoToast('请输入验证码。');
+            changeImg();
+            return false;
+        }else{
+            $("#formtip1").html("");
+            $("#formtip2").html("");
+            $("#formtip3").html("");
+            $.ajax({
+                type: "POST",
+                data:{username:username,password:password,checknumber:checknumber},
+                url: "/login",
+                success: function(result){
+                    if(result != "" && result == "success"){
+                        window.location.href="/index";
+                    }else if(result == "failed"){
+                        zlalert.alertError('用户名或密码错误，请重试');
+                        $("#username").val('');
+                        $("#password").val('');
+                        changeImg();
+                    }else if(result=="outTime"){
+                        $("#formtip").css("color","red");
+                        $("#formtip").html("验证码已失效，请重新输入");
+                    }else if(result=="checkWrong"){
+                        zlalert.alertError('验证码错误');
+                        changeImg();
+                    }
+                }
+            });
+        }
+    }
+    //验证及异步提交
+</script>
+
+</html>

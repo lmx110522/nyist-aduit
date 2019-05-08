@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教研室排行榜</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/sweetalert/sweetalert.css">
+    <script src="/sweetalert/sweetalert.min.js"></script>
+    <script src="/sweetalert/xlalert.js"></script>
+    <style>
+        #score-ph {
+
+            margin: 0 auto;
+            margin-top: 30px;
+            text-align: center;
+            font-family: '微软雅黑';
+            font-weight: 700;
+            color: rgb(103, 166, 187);
+            text-shadow: 0 8px 9px #c4b59d, 0px -2px 1px #7f8081;
+        }
+
+        #score-heard {
+            position: relative;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #score-heard>h2 {
+            display: inline-block;
+        }
+
+        #data-select {
+            display: inline-block;
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+        <div class="main-content">
+        <!-- 主显示区 -->
+        <div class="main">
+            <div id="score-heard">
+                <h2 id="score-ph">教研室排行榜</h3>
+                <div class="form-inline select-bar">
+                    <select id="select" class="form-control">
+                        <#list yearList as year>
+                            <option value="${year}">${year}~${year+1}年</option>
+                        </#list>
+                    </select>
+                    <button type="button" class="btn btn-info yearSearch">检索</button>
+                </div>
+            </div>
+
+            <table id="scoreTable"></table>
+            <!-- main显示主区 -->
+        </div>
+        <span id="no_use_uid" style="display: none">${user.id!'-1'}</span>
+            <span id="no_use_role" style="display: none">${user.role!'-1'}</span>
+    </div>
+</body>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table-zh-CN.min.js"></script>
+<script src="/js/base.js"></script>
+<script>
+    window.operateEvents = {
+        'click .gotolinkevent': function (e, value, row, index) {
+            var uid = $('#no_use_uid').text();
+            var role = $('#no_use_role').text();
+            if(uid == row.id || uid == row.class || role == 1 || role == 0){
+                window.location.href = '/jys/jysAllMsgUI?id='+row.id;
+            }
+            else{
+                zlalert.alertError('无权限，禁止访问');
+            }
+//
+//            $("#" + row.class).modal('show');
+//            console.log($(this)[0]);
+//            alert('哈哈');
+//
+//            return false;
+
+
+//
+        }
+    }
+
+    function gotolink(value, row, index) {
+        return [
+            '<a href="#"><button class="btn btn-default gotolinkevent">查看教研室详情</button></a>'
+        ].join("")
+    }
+    $(function () {
+        var select_year = $('#select').val();
+        getMsgData(select_year);
+        var role = $('#no_use_role').text();
+        if(role != 1 || role != 0){
+            $('.gotolinkevent').attr('disabled','disabled');
+        }
+    })
+    $('.yearSearch').click(function () {
+        var select_year = $('#select').val();
+        getMsgData(select_year);
+    })
+    function getMsgData(year) {
+        var datas = [];
+        $.getJSON('/jys/rankList','year='+year,function (result) {
+            if(result.status == 200){
+                var resultData = result.data;
+                if(resultData.length > 0){
+                    for(var i = 0;i < resultData.length;i++){
+                        var data = {
+                            id: resultData[i].jysUser.id,
+                            class:resultData[i].xyUser.id,
+                            jysName: resultData[i].jysUser.username,
+                            isForm: resultData[i].xyUser.username,
+                            scoreNum: resultData[i].allScore,
+                            status: resultData[i].status
+                        }
+                        datas.push(data);
+                    }
+
+                }
+            }
+            $('#scoreTable').bootstrapTable('load',datas);
+        })
+
+        var scoreTable = $('#scoreTable').bootstrapTable({
+            cache: false,   //缓存
+            pagination: true,   //分页
+            sortable: true,
+            sortOrder: "asc",
+            pageSize: 5, //默认一页几条
+            pageList: [5, 10], //备选显示条数
+            search: true,  //开启查找
+            showRefresh: true,
+            striped: true,
+            // detailView: true,
+            uniqueID: "jysName",
+            columns: [{
+                field: 'jysName',
+                title: '教研室名称'
+            }, {
+                field: 'isForm',
+                title: '所属院系'
+            }, {
+                field: 'scoreNum',
+                title: '教研室总得分',
+                sortable: true,
+                sortOrder: 'desc',
+                width: "20%"
+            }, {
+                field: 'status',
+                title: '审核状态',
+                sortable: true,
+                sortOrder: 'desc',
+                width: "20%"
+            },
+                {
+                    field: 'mydo',
+                    title: '操作',
+                    formatter: gotolink,
+                    events: operateEvents,
+                    width: "20%"
+                }
+            ],
+            data: datas
+
+        });
+
+    }
+    //查看教研室模态框
+
+
+</script>
+
+</html>

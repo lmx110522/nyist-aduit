@@ -1,0 +1,44 @@
+Manifest-Version: 1.0
+Class-Path: spring-boot-starter-web-2.0.3.RELEASE.jar validation-api-2
+ .0.1.Final.jar jackson-core-2.9.6.jar spring-retry-1.2.2.RELEASE.jar 
+ spring-data-keyvalue-2.0.8.RELEASE.jar spring-amqp-2.0.4.RELEASE.jar 
+ jedis-2.9.0.jar spring-expression-5.0.7.RELEASE.jar jboss-logging-3.3
+ .2.Final.jar jackson-datatype-jdk8-2.9.6.jar commons-net-3.6.jar spri
+ ng-boot-autoconfigure-2.0.3.RELEASE.jar spring-context-5.0.7.RELEASE.
+ jar spring-webmvc-5.0.7.RELEASE.jar spring-boot-starter-data-jpa-2.0.
+ 3.RELEASE.jar hibernate-core-5.2.17.Final.jar spring-aspects-5.0.7.RE
+ LEASE.jar lombok-1.16.22.jar logback-classic-1.2.3.jar commons-pool2-
+ 2.4.2.jar antlr-2.7.7.jar classmate-1.3.4.jar spring-boot-starter-amq
+ p-2.0.3.RELEASE.jar aspectjweaver-1.8.13.jar snakeyaml-1.19.jar hiber
+ nate-jpa-2.1-api-1.0.2.Final.jar spring-boot-starter-logging-2.0.3.RE
+ LEASE.jar mysql-connector-java-5.1.46.jar jandex-2.0.3.Final.jar spri
+ ng-messaging-5.0.7.RELEASE.jar spring-oxm-5.0.7.RELEASE.jar commons-l
+ ang-2.2.jar spring-boot-starter-data-redis-2.0.3.RELEASE.jar javax.tr
+ ansaction-api-1.2.jar freemarker-2.3.28.jar slf4j-api-1.7.25.jar acti
+ vation-1.1.jar javax.mail-1.6.1.jar spring-boot-devtools-2.0.3.RELEAS
+ E.jar spring-boot-starter-2.0.3.RELEASE.jar logback-core-1.2.3.jar ne
+ tty-codec-4.1.25.Final.jar spring-boot-starter-tomcat-2.0.3.RELEASE.j
+ ar reactive-streams-1.0.2.jar log4j-api-2.10.0.jar amqp-client-5.1.2.
+ jar spring-beans-5.0.7.RELEASE.jar httpclient-4.5.5.jar spring-boot-s
+ tarter-mail-2.0.3.RELEASE.jar jul-to-slf4j-1.7.25.jar spring-jdbc-5.0
+ .7.RELEASE.jar spring-aop-5.0.7.RELEASE.jar spring-data-commons-2.0.8
+ .RELEASE.jar HikariCP-2.7.9.jar spring-orm-5.0.7.RELEASE.jar tomcat-e
+ mbed-el-8.5.31.jar tomcat-embed-websocket-8.5.31.jar spring-rabbit-2.
+ 0.4.RELEASE.jar lettuce-core-5.0.4.RELEASE.jar spring-boot-starter-ao
+ p-2.0.3.RELEASE.jar spring-web-5.0.7.RELEASE.jar javax.annotation-api
+ -1.3.2.jar spring-data-redis-2.0.8.RELEASE.jar jodconverter-2.2.2.jar
+  jackson-module-parameter-names-2.9.6.jar hibernate-validator-6.0.10.
+ Final.jar jackson-annotations-2.9.0.jar hibernate-commons-annotations
+ -5.0.1.Final.jar spring-jcl-5.0.7.RELEASE.jar netty-handler-4.1.25.Fi
+ nal.jar spring-boot-2.0.3.RELEASE.jar netty-buffer-4.1.25.Final.jar s
+ pring-data-jpa-2.0.8.RELEASE.jar spring-boot-starter-jdbc-2.0.3.RELEA
+ SE.jar spring-core-5.0.7.RELEASE.jar dom4j-1.6.1.jar netty-resolver-4
+ .1.25.Final.jar netty-common-4.1.25.Final.jar jackson-datatype-jsr310
+ -2.9.6.jar javassist-3.22.0-GA.jar spring-boot-starter-freemarker-2.0
+ .3.RELEASE.jar tomcat-embed-core-8.5.31.jar reactor-core-3.1.8.RELEAS
+ E.jar spring-tx-5.0.7.RELEASE.jar httpcore-4.4.9.jar commons-codec-1.
+ 11.jar netty-transport-4.1.25.Final.jar spring-context-support-5.0.7.
+ RELEASE.jar log4j-to-slf4j-2.10.0.jar spring-boot-starter-json-2.0.3.
+ RELEASE.jar jackson-databind-2.9.6.jar
+Main-Class: com.nyist.AuditApplication
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>审核人模块分配</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/chosen-js/chosen.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .myselected {
+            display: none !important;
+        }
+
+        .tab-content h3 {
+            text-align: center
+        }
+
+        .nav-tabs {
+            text-align: center;
+            padding-left: 45%
+        }
+
+        .wenkemodel-box {
+            position: relative;
+            margin-left: 20%;
+        }
+
+        .model-box {
+            position: relative;
+            width: 80%;
+            margin:0 10%;
+            margin-top: 10px;
+            margin-bottom: 7px;
+        }
+
+        .mybutton{
+            position: relative;
+            left:60%;
+            margin-top: 10px;
+        }
+        .editDistribute{
+            position: relative;
+            left: 12%;
+            top:-33px;
+        }
+    </style>
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+            <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+
+        <div class="main-content">
+        <div class="filter-bar">
+            <span>
+                <a href="">审核人分配</a>
+            </span>
+            
+        </div>
+    
+        <div class="main">
+            <span id="no_use" style="display: none">${grouping!''}</span>
+            <ul id="myTab" class="nav nav-tabs">
+                <li>
+                    <a href="#like" data-toggle="tab">理科审核组</a>
+                </li>
+                <li >
+                    <a href="#wenke" data-toggle="tab">
+                        文科审核组
+                    </a>
+                </li>
+
+            
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade" id="like">
+                    <div class="wenkemodel-box col-md-7">
+                        <h3>理科审核组人员分配</h3>
+                        <#list moduleList as module>
+                            <div class="col-md-7 model-box">
+                                <label class="control-label module_name">${(module.mname)!'无名称'}:</label>
+                                <select  class="model" id="select1" title="" name="umids" data-placeholder="请点击分配审核人（框内可搜索）" multiple form="myForm1">
+                                    <#list userList1 as user1>
+                                        <option id="${user1.username}" class="${(user1.id)!''}" value="${(module.id)!''}_${(user1.id)!''}" <#if ((module.id)!'') == ((user1.moduleByMid.id)!'')>selected</#if>  >${user1.username}</option>
+                                    </#list>
+                                </select>
+                            </div>
+                        </#list>
+                        <span class="mybutton">
+                            <form action="/shr/saveDistribute" method="post" id="myForm1">
+                                <input type="hidden" name="grouping" value="1">
+                                <button class="btn btn-primary">保存</button>
+                            </form>
+                            <button class="btn btn-primary editDistribute">修改</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="tab-pane fade " id="wenke">
+                    <div class="wenkemodel-box col-md-7">
+                        <h3>文科审核组人员分配</h3>
+                        <#list moduleList as module>
+                            <div class="col-md-7 model-box">
+                                <label class="control-label module_name" id="${(module.id)!''}">${(module.mname)!'无名称'}:</label>
+                                <select  class="model" id="select" title="" name="umids" data-placeholder="请点击分配审核人（框内可搜索）" multiple form="myForm">
+                                    <#list userList as user>
+                                        <option id="${user.username}" class="${(user.id)!''}" value="${(module.id)!''}_${(user.id)!''}" <#if ((module.id)!'') == ((user.moduleByMid.id)!'')>selected</#if>  >${user.username}</option>
+                                    </#list>
+                                </select>
+                            </div>
+                        </#list>
+                        <span class="mybutton">
+                            <form action="/shr/saveDistribute" method="post" id="myForm">
+                                <input type="hidden" name="grouping" value="2">
+                                <button class="btn btn-primary">保存</button>
+                            </form>
+                            <button class="btn btn-primary editDistribute">修改</button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/node_modules/chosen-js/chosen.jquery.min.js"></script>
+<script src="/js/distribution.js"></script>
+<script src="/js/base.js"></script>
+<script>
+$(function () {
+    var checkTab = $('#no_use').text();
+    if(checkTab.length <=0){
+        $('#myTab li:eq(0)').addClass("active");
+        $('#myTabContent>div:first').addClass('in active');
+    }
+    else{
+        $('#myTab li').eq(checkTab-1).addClass("active");
+        $('#myTabContent>div:eq('+(checkTab-1)+')').addClass('in active');
+    }
+    $(".search-choice-close").hide();
+    $("div.col-md-7 div.chosen-container ul.chosen-choices  li.search-choice").css({
+        "height": "30px",
+        "color": "brown",
+        "background-color": "#2aabd2"
+    })
+
+    $(".chosen-container-multi").css('pointer-events',"none");
+
+        var arr1s=[];
+        $(".col-md-7 .chosen-container span").each(function () {
+            var arr1 = $(this).text();
+            arr1s.push(arr1);
+
+        })
+
+        arr_t = arr1s
+
+    $('.editDistribute').click(function () {
+        $(".search-choice-close").show();
+        $(".chosen-container-multi").css('pointer-events',"all");
+        $("div.col-md-7 div.chosen-container ul.chosen-choices  li.search-choice").css({
+            "height": "20px"
+        })
+        $('.editDistribute').hide();
+        for (var i = 0; i < arr_t.length; i++) {
+            $(".model").find("option[id=" + arr_t[i] + "]").addClass("myselected") //把选中的都加上控制类名删除
+        }
+        $(".model").trigger("chosen:updated"); //更新下拉框
+    })
+})
+</script>
+</html>

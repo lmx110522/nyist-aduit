@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教研室资料上传</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap-fileinput/css/fileinput.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/account-xy.css">
+    <link rel="stylesheet" href="/sweetalert/sweetalert.css">
+    <script src="/sweetalert/sweetalert.min.js"></script>
+    <script src="/sweetalert/xlalert.js"></script>
+    <style>
+        li{
+            list-style-type: none;
+        }
+        .main .filetoup {
+            position: relative;
+            height: 700px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+        .main .filetoup .class-file>input{
+            display: inline;
+        }
+        .main .model-info {
+            position: relative;
+            margin-left: 50px;
+            margin-top: 30px;
+        }
+        .main .table-content .table{
+            background: #fff;
+        }
+        #addNewAccount{
+            position: absolute;
+            left: -160px;
+            top: 18px;
+        }
+        #batchUploadBtn{
+            position: absolute;
+            left: -58px;
+            top: 18px;
+        }
+        #imageArea{
+            width: 540px;
+            height: auto;
+            position: absolute;
+            right: 3000px;
+            top: 400px;
+            border-radius: 5px;
+            border: 1px solid gainsboro;
+            transition: 1s;
+            background-color: whitesmoke;
+        }
+        #areaTitle{
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        #imageArea .preview{
+            position: absolute;
+            right: 5px;
+            top: 45px;
+        }
+        #addImageBtn{
+            position: absolute;
+            left: -275px;
+            top: 18px;
+        }
+        .modal{
+            margin-top: 100px;
+        }
+        #div1{
+            width: 100%;
+            height: 50px;
+        }
+        #div1 span{
+            color: white;
+            background-color: #337AB7;
+            padding:7px 25px 7px 25px;
+            margin-top: 16px;
+            display: inline-block;
+        }
+        #div2{
+            width: 100%;
+            border-top: 1px solid #c1c3c7;
+            height: auto;
+        }
+        #div2 .bigImage{
+            height: 450px;
+            width: 420px;
+            background-color: #00b3ee;
+            margin: 15px;
+        }
+        #div2 .smallImage{
+            height: 450px;
+            width: 100px;
+            position: absolute;
+            right: 30px;
+            top: 81px;
+        }
+        #div2 .smallImage li{
+            height: 80px;
+            margin-top: 8px;
+            width: 100%;
+            background-color: grey;
+            width: 30px;
+        }
+        #div2 .smallImage li img{
+            width: 100%;
+            height: 100%;
+        }
+        #mask-div {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 10000;
+            width: 100%;
+            height: 100%;
+            background-color: #ececec;
+            opacity: 0.6;
+            filter: alpha(opacity=60);
+            -moz-opacity: 0.6;
+        }
+        .download-progress {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 10001;
+            margin-left: -62px;
+
+            margin-top: -62px;
+        }
+        .download-progress img {
+             display: block;
+             width: 124px;
+             position: absolute;
+             left: 10px;
+             top: -125px;
+
+         }
+        .download-progress p{
+            font-size: 30px;
+            font-weight: bolder;
+            color: firebrick;
+        }
+        html, body{
+            height: 100%;
+           overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="mask-div" style="display: none">
+
+</div>
+<div class="download-progress"  style="display: none">
+    <img src="/images/wait.gif" alt="等待中。。。" />
+    <p style="margin-right: -20px">文件正在上传，</p>
+        <p style="margin-left: 30px">请稍后...</p>
+</div>
+
+
+    <!-- 头部导航 -->
+    <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+            <!-- 左侧导航条结束 -->
+
+
+            <div class="main-content">
+                <!-- 头部链接位置导航条 -->
+                <div class="filter-bar">
+            <span>
+                <a href="">教研室详情查看</a>
+            </span>
+                </div>
+
+                <!-- 主显示区 -->
+                <div class="main">
+                    <div class="table-content col-xs-5">
+                        <span>文件上传</span>
+                        <p class="help-block">****支持压缩包,word文档及表格</p>
+                        <table class="table table-hover table-bordered ">
+
+                            <tbody id="mytable">
+                            <tr class="mytabletr">
+                                <td>
+                                    <span>1</span>
+                                </td>
+                                <input id="moduleByMid" type="hidden" name="Mids" form="myForm" value="${(module.id)}">
+                                <td>
+                                    <input id="files"  name="files" form="myForm" type="file" data-show-caption="true" class="myfileinput filesUpload">
+                                </td>
+                                <td>
+                                    <button class=" btn btn-danger del">删除</button>
+                                </td>
+                            </tr>
+
+
+                            </tbody>
+                        </table>
+                        <div class="mybtn">
+                            <button id="addImageBtn" class="btn btn-primary" style="display: none">我要上传照片</button>
+                            <button id="addNewAccount" class="btn btn-primary">添加新文件</button>
+                            <form method="post" id="myForm"  enctype="multipart/form-data">
+                                <button id="batchUploadBtn" type="button" onclick="fileUpload()" class="btn btn-default addJys" >提交上传</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="model-info col-xs-5">
+                        <h3>{<b class="module_name">${module.mname}</b>}细则说明：</h3>
+                        <p>
+                            ${module.content}
+                        </p>
+                    </div>
+
+                </div>
+                <div id="imageArea">
+                    <button type="button" class="close myClose" data-dismiss="modal" aria-hidden="true">
+                        ×
+                    </button>
+                    <h3 id="areaTitle">图片上传</h3>
+                    <div class="imageUploadArea">
+                        <p class="help-block">****支持jpg,gif,png格式的照片(最多上传五张照片)</p>
+                        <table class="table table-hover table-bordered imageUpload">
+                            <tbody id="imageTable">
+                            <tr class="mytabletr aaa">
+                                <td>
+                                    <span>多选上传</span>
+                                </td>
+                                <td>
+                                    <input  name="files" form="imgForm" accept="image/gif, image/jpeg" onchange="getPhoto(this)" type="file" data-show-caption="true" class="myfileinput1" multiple="multiple">
+                                </td>
+                                <td>
+                                    <button class=" btn btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="myImagebtn">
+                            <button  class="btn btn-default preview">预览</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- main显示主区 -->
+            <div class="modal fade" id="rjxy" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title">
+                                上传照片预览
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="div1">
+                                <span>大图</span>
+                            </div>
+                            <div id="div2">
+                                <div class="bigImage"><img src="" style="width: 100%;height: 100%"></div>
+                                <ul class="smallImage">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <form  method="post" id="imgForm"  enctype="multipart/form-data">
+                                <input  type="hidden" name="Mids"  value="${(module.id)}">
+                                <button onclick="imgUpload()" type="button" class="submit-room btn btn-primary">
+                                    确认提交
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+</body>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/node_modules/chosen-js/chosen.jquery.min.js"></script>
+<script src="/node_modules/bootstrap-fileinput/js/fileinput.min.js"></script>
+<script src="/node_modules/bootstrap-fileinput/js/locales/zh.js"></script>
+<script src="/js/paginathing.min.js"></script>
+<script src="/js/base.js"></script>
+<script src="/js/ajaxfileupload.js"></script>
+
+<script>
+    var imageNums;
+    $(function () {
+        var aid=$('#no_use1').text();
+        if(aid == 'f44f82c0e71a61a0'){
+            $('#addImageBtn').show();
+        }
+        $('.preview').hide();
+        $('input:file').change(function () {
+            $(this).parents('.btn-file').siblings('button[title=上传选中文件]').remove();
+        })
+        $('#mytable').delegate('input:file','change',function () {
+            $(this).parents('.btn-file').siblings('button[title=上传选中文件]').remove();
+        })
+        $('#addImageBtn').click(function () {
+            $.getJSON('/jys/getImageNums',function (result) {
+                imageNums =  result.data;
+                zlalert.alertInfo('今年你还可以上传照片数量为'+imageNums+"张(多上传会清空)");
+                if(imageNums != 0){
+                    $("#addImageBtn").hide()
+                    $('#imageArea').css({
+                        top: "400px",
+                        right: "150px"
+                    })
+                }
+            })
+
+        });
+//        格式不对时，提醒用户，并且清除
+        $("input:file").change(function () {
+            var hasError = $(this).parents(".has-error")
+            console.log(hasError)
+            console.log(hasError.length)
+            if(hasError.length != 0){
+                $(this).parents(".btn-file").click()
+                $(this).val("")
+                zlalert.alertError("文件格式不正确，请重新选择！")
+                $(".preview").hide()
+            }
+
+        })
+        
+        $('button[title=清除选中文件]').click(function () {
+            $(this).parents('.input-group').find('input:file').val("");
+        })
+
+        $('#mytable').delegate('button[title=清除选中文件]','click',function () {
+            $(this).parents('.input-group').find('input:file').val("");
+        })
+
+
+        $('.bigImage').dblclick(function () {
+            var imgSrc = $(this).children('img').attr('src');
+            window.open(""+imgSrc, "_blank");
+        })
+
+        $('.myClose').click(function () {
+            $("#addImageBtn").show();
+            $('#imageArea').css({
+                "right": "-575px",
+                "top":"400px"
+            });
+        })
+        $('.preview').click(function () {
+            var $newInput = $("#imageTable input:file").val();
+            var $input = $('.mytabletr.aaa').find('.file-caption-name[title]');
+            if($input.attr('title') != '验证错误'){
+                if($newInput != ''){
+                    var imageSrc =  $('#div2 .smallImage li:first img').attr('src');
+                    $('.bigImage img').attr('src',imageSrc);
+                    $("#rjxy").modal('show');
+                }
+
+            }
+
+        })
+
+        $('#div2 .smallImage').delegate('li','mouseover',function () {
+            var imageSrc = $(this).children('img').attr('src');
+            $('.bigImage img').attr('src',imageSrc);
+        });
+
+        $('#imageArea .fileinput-remove-button').click(function () {
+            $('.preview').hide();
+        })
+        $('#imageArea .btn-file').click(function () {
+            $("#imageArea .myfileinput").fileinput({
+                msgFilesTooMany: imageNums,
+                language: 'zh', //设置语言
+                uploadUrl: "", //上传的地址
+                maxFileSize: 10000,//上传文件最大的尺寸
+                uploadAsync: true, //默认异步上传
+                showUpload: true, //是否显示上传按钮
+                showRemove: true, //显示移除按钮
+                showPreview: false, //是否显示预览
+                showCaption: true,//是否显示标题
+                browseClass: "btn btn-primary", //按钮样式
+                enctype: 'multipart/form-data',
+            }).on("filebatchselected", function (event, data, previewId, index) {
+            });
+        });
+
+
+        $('.filesUpload').change(function () {
+
+            var $that = $(this);
+            var name = $(this)[0].files[0].name;
+            $(this).parents('.mytabletr').siblings('').each(function () {
+                var otherName = $(this).find('input:file')[0].name;
+                if(otherName == name){
+                    zlalert.alertError('文件名重复，请修改好再选择！');
+                    $that.parents('.mytabletr').remove();
+                }
+            })
+        });
+
+        $('#mytable').delegate('.filesUpload','change',function () {
+
+            var $that = $(this);
+            var name = $(this)[0].files[0].name;
+            $(this).parents('.mytabletr').siblings('').each(function () {
+                var otherName = $(this).find('input:file')[0].files[0].name;
+                if(otherName == name){
+                    zlalert.alertError('文件名重复，请修改好再选择！');
+                    $that.parents('.mytabletr').remove();
+                }
+            })
+        })
+    })
+    //文件异步上传
+    function fileUpload() {
+        var tr_len = $('#mytable tr').length;
+        if(tr_len == 0){
+            return false;
+        }
+
+        var flag = 0;
+        var s = '验证错误';
+        console.log($('.filesUpload'));
+
+        $('.filesUpload').each(function () {
+            if($(this).parents('.file-input').find('.file-caption-name').attr("title")==s){
+                flag++;
+                zlalert.alertInfoToast('你有不合法文件，请修改后再上传');
+                return false;
+            }
+            if($(this).val() == ''){
+                flag++;
+                zlalert.alertInfoToast('你有空文件，请填写后再上传');
+                return false;
+            }
+        });
+        if(flag == 1){
+            return false;
+        }
+        var formData = new FormData($("#myForm")[0]);
+        $.ajax({
+            url: '/document/fileUpload',
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            beforeSend:beforeSend,//发送请求前执行此函数
+            success: function (data) {
+                //成功的回调
+                if(data.status==200){
+                    zlalert.alertSuccess("文件上传成功!",function () {
+                        location.reload();
+                    });
+                }else{
+                    zlalert.alertError(data.msg);
+                }
+            },
+            complete: complete
+        });
+        return true;
+    }
+    function beforeSend(XMLHttpRequest){
+
+        $("#mask-div").show();
+        $(".download-progress").show();
+
+    }
+    function complete(XMLHttpRequest){
+        $("#mask-div").hide();
+        $(".download-progress").hide();
+    }
+    function showLoading(message, callback) {
+        var msg = $("<div/>").css({
+            position : 'absolute',
+            'background-color': '#ffffff',
+            'border-width': '1px',
+            'border-style': 'solid',
+            'font-size': '14px',
+            display : 'none',
+            'z-index' : 1000,
+            padding: 10
+        }).html(message).appendTo("body");
+        var top = ($(window).height() / 2 - msg.height()) / 2;
+        var left = ($(window).width() - msg.width()) / 2;
+        var scrollTop = $(document).scrollTop();
+        var scrollLeft = $(document).scrollLeft();
+        msg.css({
+            top : top + scrollTop,
+            left : left + scrollLeft
+        }).fadeIn("fast", function() {
+            callback();
+            msg.fadeOut("fast", function() {
+                msg.remove();
+            });
+        });
+        return msg;
+    }
+
+    //图片异步上传
+    function imgUpload() {
+        var formData = new FormData($("#imgForm")[0]);
+        $.ajax({
+            url: '/document/fileUpload',
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            beforeSend:beforeSend,//发送请求前执行此函数
+            success: function (data) {
+                //成功的回调
+                if(data.status==200){
+                    zlalert.alertSuccess("图片上传成功!",function () {
+                        location.reload();
+                    });
+                }else{
+                    zlalert.alertError(data.msg);
+                }
+            },
+        });
+        return true;
+    }
+    var imgurl = "";
+    function getPhoto(node) {
+
+        $('#div2 .smallImage').empty();
+        var imgURL = "" ;
+        if(node.files.length > imageNums){
+            $('.myfileinput1').val('');
+            zlalert.alertInfo('你还可以上传的照片数量是'+imageNums+'张,请重新上传！');
+        }
+        else{
+            $('.preview').show();
+            var len = (node.files.length>imageNums?imageNums:node.files.length);
+            for(var i = 0;i < len;i++){
+                try{
+                    var file = null;
+                    if(node.files && node.files[i] ){
+                        file = node.files[i];
+                    }else if(node.files && node.files.item(i)) {
+                        file = node.files.item(i);
+                    }
+                    //Firefox 因安全性问题已无法直接通过input[file].value 获取完整的文件路径
+                    try{
+                        imgURL =  file.getAsDataURL();
+
+                    }catch(e){
+                        imgRUL = window.URL.createObjectURL(file);
+
+                    }
+                }catch(e){
+                    if (node.files && node.files[i]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                        };
+                        reader.readAsDataURL(node.files[i]);
+                    }
+                }
+
+                $('#div2 .smallImage').append('<li><img src="'+imgRUL+'" style="height: 85px;width: 98px"></li>');
+            }
+        }
+
+    }
+
+
+    function fileinputCreat() {
+        $(".myfileinput").fileinput({
+            language: 'zh', //设置语言
+            uploadUrl: "", //上传的地址
+            allowedFileExtensions: ['zip', 'rar', 'doc', 'docx', 'pdf', 'xls', 'xlsx'],
+            maxFileSize: 10000,//上传文件最大的尺寸
+            uploadAsync: true, //默认异步上传
+            showUpload: true, //是否显示上传按钮
+            showRemove: true, //显示移除按钮
+            showPreview: false, //是否显示预览
+            showCaption: true,//是否显示标题
+            browseClass: "btn btn-primary", //按钮样式
+            enctype: 'multipart/form-data',
+        }).on("filebatchselected", function (event, data, previewId, index) {
+        });
+        $(".myfileinput1").fileinput({
+            language: 'zh', //设置语言
+            uploadUrl: "", //上传的地址
+            allowedFileExtensions: ['jpg', 'png', 'gif','JPG'],
+            maxFileSize: 10000,//上传文件最大的尺寸
+            uploadAsync: true, //默认异步上传
+            showUpload: true, //是否显示上传按钮
+            showRemove: true, //显示移除按钮
+            showPreview: false, //是否显示预览
+            showCaption: true,//是否显示标题
+            browseClass: "btn btn-primary", //按钮样式
+            enctype: 'multipart/form-data',
+        }).on("filebatchselected", function (event, data, previewId, index) {
+        });
+    }
+    fileinputCreat()
+
+
+    var y = 1;
+    var i=0;
+    var x = $(".mytabletr").not('.aaa').length;
+    $("body").on("click", ".myremove", function (e) { //user click on remove text
+        var spanx = $(this).parent('td').parent('tr').children('td:first-child').text();
+        if (x == spanx) {
+            $(this).parent('td').parent('tr').remove(); //remove text box
+            x--; //decrement textbox
+
+            $('nav.table-content').remove()
+            jQuery(document).ready(function ($) {
+                $('.table:not(".imageUpload") tbody').paginathing({
+                    perPage: 10,
+                    containerClass: 'table-content',
+                    insertAfter: '.mybtn',
+                    prevText: '上一页',
+                    nextText: '下一页',
+                    firstText: '最前',
+                    lastText: '最后',
+                })
+                var currentpage = $('nav.table-content>ul>li.page>a:last')
+                currentpage.click()
+            });
+
+        }
+        else{
+            alert("只能删除最后一个")
+        }
+        return false;
+    })
+
+
+    $("#addNewAccount").on('click', function (e) {
+        x = $(".mytabletr").not('.aaa').length;
+        var htmladd = "";
+        htmladd += '<tr class="mytabletr">';
+        htmladd += '<td><span>'+(x+1)+ '</span></td >';
+        htmladd += '<input id="moduleByMid" type="hidden" name="Mids" form="myForm" value="${(module.id)}">';
+        htmladd += '<td> <input id="files"  name="files" type="file" form="myForm" data-show-caption="true" class="myfileinput filesUpload"> </td>';
+        htmladd += '<td> <button class=" btn btn-danger del">删除</button> </td>'
+        htmladd += ' </tr>';
+        $("#mytable").append(htmladd);
+        x++;
+
+        $('nav.table-content').remove()
+        jQuery(document).ready(function ($) {
+            $('.table:not(".imageUpload") tbody').paginathing({
+                perPage: 10,
+                containerClass: 'table-content',
+                insertAfter: '.mybtn',
+                prevText: '上一页',
+                nextText: '下一页',
+                firstText: '最前',
+                lastText: '最后',
+            })
+            var currentpage = $('nav.table-content>ul>li.page>a:last')
+            currentpage.click()
+        });
+        fileinputCreat()
+    })
+
+
+    function checkAll(){
+        var tr_len = $('#mytable tr').length;
+        if(tr_len == 0){
+            return false;
+        }
+
+        var flag = 0;
+        var s = '验证错误';
+        console.log($('.filesUpload'));
+
+        $('.filesUpload').each(function () {
+            if($(this).parents('.file-input').find('.file-caption-name').attr("title")==s){
+                flag++;
+                zlalert.alertInfoToast('你有不合法文件，请修改后再上传');
+                return false;
+            }
+            if($(this).val() == ''){
+                flag++;
+                zlalert.alertInfoToast('你有空文件，请填写后再上传');
+                return false;
+            }
+        });
+        if(flag == 1){
+            return false;
+        }
+        return true;
+    }
+
+    $('#mytable').delegate('.del',"click",function () {
+
+        var $that = $(this);
+        var index_del = $(this).parents('.mytabletr').find('td:first span').text();
+        $that.parents('.mytabletr').nextAll('.mytabletr').each(function () {
+            $(this).find('td:first span').text(index_del);
+            index_del++;
+        })
+
+
+        var $input = $that.parents('.mytabletr').find('input.file-caption-name');
+
+        if(($input.attr('title') != undefined && $input.attr('title') != '验证错误')){
+
+            zlalert.alertConfirm({'msg':'你确定要删除吗？'});
+            $('.confirm').click(function () {
+                $that.parents('.mytabletr').remove();
+            })
+        }else{
+            $that.parents('.mytabletr').remove();
+        }
+
+    })
+    $(".del").click(function () {
+        var $that = $(this);
+        var index_del = $(this).parents('.mytabletr').find('td:first span').text();
+        $that.parents('.mytabletr').nextAll('.mytabletr').each(function () {
+            $(this).find('td:first span').text(index_del);
+            index_del++;
+        })
+        var $input = $that.parents('.mytabletr').find('input.file-caption-name');
+        if($input.attr('title') != undefined  && $input.attr('title') != '验证错误'){
+            zlalert.alertConfirm({'msg':'你确定要删除吗？'});
+            $('.confirm').click(function () {
+                $that.parents('.mytabletr').remove();
+            })
+        }else{
+            $that.parents('.mytabletr').remove();
+        }
+    })
+    jQuery(document).ready(function ($) {
+        $('.table:not(".imageUpload") tbody').paginathing({
+            perPage: 10,
+            containerClass: 'table-content',
+            insertAfter: '.mybtn',
+            prevText: '上一页',
+            nextText: '下一页',
+            firstText: '最前',
+            lastText: '最后',
+        })
+    });
+
+
+</script>
+
+</html>

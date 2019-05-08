@@ -1,0 +1,32 @@
+.table-content{
+    margin: 10px 40px;
+}
+.table-content .table thead {
+    background: rgb(207, 209, 209);
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{
+    vertical-align: middle;
+}
+.table-content .table tbody tr td span{
+    display: inline-block;
+    font-size: 14px;
+}
+.table-content  span {
+    display: block;
+    margin: 0 auto;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+
+.table-content .modal-dialog{
+    width: 70%;
+}
+
+.table-content .modal-dialog .table caption{
+    text-align: center;
+    font-weight: 700;
+    padding-top: 0;
+}
+

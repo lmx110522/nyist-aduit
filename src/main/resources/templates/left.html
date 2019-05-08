@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>左侧页面</title>
+    <link rel="stylesheet" href="/sweetalert/sweetalert.css">
+    <script src="/sweetalert/sweetalert.min.js"></script>
+    <script src="/sweetalert/xlalert.js"></script>
+    <script>
+        $(function () {
+            var aid=$('#no_use1').text();
+            $('a').each(function () {
+                if($(this).attr('id') == aid){
+                    if($(this).hasClass('single-menu')){
+                        $(this).addClass("menu-second-selected");
+                    }
+                    else{
+                        $(this).parents('ul').toggleClass("collapse in");
+                        $(this).addClass("menu-second-selected");
+                    }
+                }
+            });
+            $('.menu-first').click(function () {
+                if($(this).attr('id') == '4a2294af2013b7e5'){
+                    var $that = $(this);
+                    $.getJSON('/getStatus',function (result) {
+                        if(result.data != '4'){
+                            $that.next('ul').empty();
+                            zlalert.alertError('不在相应时间内，禁止提交');
+                        }
+                    })
+
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+<div class="sidebar-menu col-md-2">
+    <span id="no_use1" style="display:none ">${aid!''}</span>
+    <span id="no_use_status" style="display:none ">${status!''}</span>
+    <#if navAuthorityList??>
+        <#if ((navAuthorityList)?size>0) >
+            <#list navAuthorityList as navAuthority>
+                <#if ((navAuthority.childAuthorities)?size>0) >
+                    <a href="${(navAuthority.parentAuthority.url)!''}" id="${(navAuthority.parentAuthority.id)!''}" class="nav-header menu-first collapsed" data-toggle="collapse in">
+                        <i class="icon-user-md icon-large"></i>${(navAuthority.parentAuthority.aname)!''}</a>
+                    <ul class="nav nav-list collapse  menu-second">
+                        <#list (navAuthority.childAuthorities) as childAuthority>
+                            <li>
+                                <a href="${childAuthority.url}?aid=${(childAuthority.id)!''}" id="${(childAuthority.id)!''}">
+                                    <i class="icon-edit"></i>${childAuthority.aname}</a>
+                            </li>
+                        </#list>
+                    </ul>
+                    <#else>
+                        <a href="${(navAuthority.parentAuthority.url)!''}?aid=${(navAuthority.parentAuthority.id)!''}"  class="single-menu" id="${navAuthority.parentAuthority.id}">${(navAuthority.parentAuthority.aname)!""}</a>
+                </#if>
+            </#list>
+        </#if>
+    </#if>
+</div>
+</body>
+</html>

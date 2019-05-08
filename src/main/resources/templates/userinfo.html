@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/base.css">
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+        <div class="main-content">
+        <div class="filter-bar">
+            <span>
+                <a href="">个人信息</a>
+            </span>
+        </div>
+
+        <div class="main">
+            <div class="form-group col-xs-4">
+                <div class="input-group">
+                    <label class="input-group-addon" for="username">账号：</label>
+                    <input type="text" class="form-control" id="username" placeholder="jiaoyanshizhuren" disabled>
+                </div>
+                <div class="input-group">
+                    <label class="input-group-addon" for="yourId">所属身份：</label>
+                    <input type="text" class="form-control" id="yourId" placeholder="教研室主任" disabled>
+                </div>
+                <div class="input-group">
+                    <label class="input-group-addon" for="password">账号密码：</label>
+                    <input type="password" class="form-control" id="password" placeholder="123456" disabled>
+                </div>
+                <div class="mybtn">
+                    <button class="btn btn-primary" id="editbtn">修改密码</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main显示主区 -->
+</body>
+<script src="js/base.js"></script>
+<script>
+    
+</script>
+</html>

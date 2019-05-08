@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教研室详情查看</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/node_modules/chosen-js/chosen.jquery.min.js"></script>
+    <link rel="stylesheet" href="/css/base.css">
+    <style>
+        .main .main-box .filebox{
+            position: relative;
+            /* margin-top:35px; */
+            height: 700px;
+            overflow:auto;
+            overflow-x:hidden;
+            margin-left: 60px;
+        }
+        .main .main-box .filebox .file-box-son{
+            position: relative;
+            display: inline-block;
+            width: 66%;
+        }
+        .main .main-box .filebox .filedownbtn{
+            position: absolute;
+            right: -70px;
+            top:0;
+        }
+        .main .main-box h3{
+            font-size: 20px;
+            font-weight: 700;
+            color: rgb(54, 85, 85)
+        }
+        .main .main-box .shenhe-info h3{
+            padding-left: 25%;
+        }
+        .mybtn1{
+            position: absolute;
+            right: 155px;
+        }
+        .mybtn2{
+            position: absolute;
+            right: 70px;
+        }
+        .mybtn3{
+            position: absolute;
+            right: 140px;
+        }
+        #no_file{
+            color: firebrick;
+            font-weight: bolder;
+            font-size: 20px;
+            position: absolute;
+            left: 55px;
+            top: 55px;
+        }
+        #goBack{
+            position: absolute;
+            right: 60px;
+        }
+        #submit{
+            position: absolute;
+            right: 25%;
+            top: 100%;
+        }
+        .modal{
+            margin-top: 100px;
+        }
+        #div1{
+            width: 100%;
+            height: 50px;
+        }
+        #div1 span{
+            color: white;
+            background-color: #337AB7;
+            padding:7px 25px 7px 25px;
+            margin-top: 16px;
+            display: inline-block;
+        }
+        #div2{
+            width: 100%;
+            border-top: 1px solid #c1c3c7;
+            height: auto;
+        }
+        #div2 .bigImage{
+            height: 450px;
+            width: 420px;
+            margin: 15px;
+        }
+        #div2 .smallImage{
+            height: 450px;
+            width: 100px;
+            position: absolute;
+            right: 30px;
+            top: 81px;
+        }
+        #div2 .smallImage li{
+            height: 80px;
+            margin-top: 9px;
+            width: 98px;
+        }
+        #div2 .smallImage li img{
+            width: 100%;
+            height: 100%;
+        }
+        .showImage{
+            position: absolute;
+            right: 150px;
+            top: 20px;
+            background-color: #31B0D5;
+            height: 30px;
+            border: 1px solid whitesmoke;
+        }
+        li{
+            list-style-type: none;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="myIdea">
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+        <div class="main-content">
+        <!-- 头部链接位置导航条 -->
+        <div class="filter-bar">
+            <span>
+                <a href="">教研室详情查看</a>
+            </span>
+        </div>
+
+        <!-- 主显示区 -->
+        <div class="main">
+            <div class="main-box">
+            
+                <div class="form-group col-xs-4 filebox">
+                    <span style="display: none" id="no_use_id1">${mid!''}</span>
+                    <span style="display: none" id="no_use_id">${(userModule.tUserByUid.id)!''}</span>
+                    <h3>教研室文件下载查看</h3>
+                    <button type="button" style="display: none;" class="submit-room btn btn-primary showImage" data-dismiss="modal">照片查看</button>
+                    <#if documentList?? >
+                        <#list documentList as document>
+                            <div class="file-box-son">
+                                <div class="input-group">
+                                    <label class="input-group-addon" for="No1file">${document_index+1}：</label>
+                                    <input type="text" class="form-control" id="No1file" value="${(document.dname)!'无文件名'}" placeholder="文件名" disabled>
+                                </div>
+                                <button class="btn btn-primary filedownbtn" id="${(document.fileUrl)!'#'}" onclick="uploadJysFile(this)">下载</button>
+                            </div>
+                        </#list>
+                        <#else>
+                            <span id="no_file">(无文件)</span>
+                    </#if>
+
+                </div>
+                <div class="shenhe-info col-xs-5">
+                    <h3>该模块审核记录</h3>
+                    <div class="content-form">
+                        <form class="userinfoform form-horizontal">
+                            <div class="form-group">
+                                <label for="jysname" class="col-sm-3 control-label">教研室名称:</label>
+                                <div class="col-md-8">
+                                    <input type="username" class="form-control" id="jysname" value="${(userModule.tUserByUid.username)!'没有名字'}" disabled placeholder="教研室名称">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="shenhe-block" class="col-sm-3 control-label">审核模块:</label>
+                                <div class="col-md-8">
+                                    <input type="username"  class="form-control" id="shenhe-block"  value="${(userModule.moduleByMid.mname)!'无模块'}" disabled placeholder="审核模块">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="score" class="col-sm-3 control-label">模块分数:</label>
+                                <div class="col-md-8">
+                                    <input type="number" max="${userModule.moduleByMid.score}" min="0" name="score" form="myForm" class="form-control" id="score" value="${(userModule.score)!''}"  placeholder="根据上传文件质量和评分标准进行打分（0-${userModule.moduleByMid.score}）">
+                                    <span>(打分最高<span style="color: firebrick">${userModule.moduleByMid.score}</span>分)</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="info-message" class="col-sm-3 control-label">审核人点评:</label>
+                                <div class="col-md-8">
+                                    <textarea style="resize:none;" name="content"  form="myForm" type="text" rows="8" class="form-control" id="info-message"   placeholder="写点你的看法或意见吧~">${(userModule.content)!''}</textarea>
+                                </div>
+                            </div>
+
+                        </form>
+                        <#if (userModule.isOk == 0 && user.role==3 && status == 3)>
+                            <div class="form-group" id="${(userModule.id)!''}">
+                                <button id="editbtn" type="button" class="mybtn3 btn btn-primary">修改</button>
+                            </div>
+                        </#if>
+                        <#if (userModule.isOk == 1 && user.role==3 && status == 3)>
+                            <form action="/shr/saveApprove" method="post" id="myForm">
+                                <input type="hidden" name="id" value="${userModule.id}">
+                                <button type="submit" id="submit" class="mybtn1 btn btn-default">提交</button>
+                            </form>
+                        </#if>
+                        <button type="button" class="mybtn2 btn btn-default" onclick="window.history.go(-1)">返回</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+    <!-- main显示主区 -->
+            <div class="modal fade" id="rjxy" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title">
+                                上传照片预览
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="div1">
+                                <span>大图</span>
+                            </div>
+                            <div id="div2">
+                                <div class="bigImage"><img src="" style="width: 100%;height: 100%"></div>
+                                <ul class="smallImage">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+</div>
+</body>
+<link rel="stylesheet" href="/sweetalert/sweetalert.css">
+<script src="/sweetalert/sweetalert.min.js"></script>
+<script src="/sweetalert/xlalert.js"></script>
+<script src="/js/base.js"></script>
+<script>
+    $('.bigImage').dblclick(function () {
+        var imgSrc = $(this).children('img').attr('src');
+        window.open(""+imgSrc, "_blank");
+    })
+    $("#score").on("keyup",function(){
+        $(this).val($(this).val().replace(/[^0-9-]+/,''));
+        if($(this).val().length == 1){
+            $(this).val() == '0' ? $(this).val('') : $(this).val();
+        }
+    });
+    $("#score").on("keydown",function(){
+        $(this).val($(this).val().replace(/[^0-9-]+/,''));
+        if($(this).val().length == 1){
+            $(this).val() == '0' ? $(this).val('') : $(this).val();
+        }
+    });
+
+    $('#goBack').click(function () {
+        window.history.go(-1);
+    })
+    function uploadJysFile(obj) {
+        var url = $(obj).attr('id');
+        window.open(""+url, "_blank");
+//        window.location.href=''+url;
+    }
+    $(function () {
+        var mid = $('#no_use_id1').text();
+        if(mid == 'f44f82c0e71a61a0'){
+            $('.showImage').show();
+        }
+        var isExist = $('.mybtn1').length;
+        if(isExist == 0){
+         $('#score').attr("disabled","disabled");
+         $('#info-message').attr("disabled","disabled");
+        };
+
+
+        $('#div2 .smallImage').delegate('li','mouseover',function () {
+
+            var imageSrc = $(this).children('img').attr('src');
+            $('.bigImage img').attr('src',imageSrc);
+        })
+
+        $('.showImage').click(function () {
+            $('#div2 .smallImage').empty();
+            var id = $('#no_use_id').text();
+            $.getJSON('/jys/getAllImages','id='+id,function (result) {
+                if(result.status == 200){
+                    var resultData = result.data;
+                    for(var i = 0;i < resultData.length;i++){
+                        var imgRUL = resultData[i].imgUrl;
+                        $('#div2 .smallImage').append('<li id="'+id+'"><img src="'+imgRUL+'" style="height: 80px;width: 98px"></li>');
+                    }
+                    var imageSrc =  $('#div2 .smallImage li:first img').attr('src');
+                    $('.bigImage img').attr('src',imageSrc);
+                    $("#rjxy").modal('show');
+                }
+                else{
+                    zlalert.alertInfo('暂时还没有上传的照片');
+                }
+            })
+        })
+
+
+        $('#editbtn').click(function () {
+            if($(this).hasClass("edit")){
+
+                var id = $(this).parent('div').attr('id');
+                var score = $('#score').val();
+                var content = $('#info-message').val();
+                var max = $('#score').attr('max');
+               if(!(/^[1-9]\d*$/.test(score))){
+
+               }
+                if(parseInt(score) > parseInt(max) || score == '' ||  score < 0 ){
+                    zlalert.alertInfo('打分成绩不能为空或者不在0-'+max+'范围内');
+                }
+                else{
+                    $(this).removeClass("edit");
+                    $(this).text("修改");
+                    $('#score').attr("disabled","disabled");
+                    $('#info-message').attr("disabled","disabled");
+                    $.post("/shr/editApprove",'id='+id+'&score='+score+'&content='+content,function (data) {
+                        if(data.status == 200){
+                            zlalert.alertSuccess("审核记录修改成功！");
+                        }
+                    })
+
+                }
+
+            }
+            else{
+                $(this).addClass("edit");
+                $(this).text("确认修改");
+                $('#score').removeAttr("disabled");
+                $('#info-message').removeAttr("disabled");
+            }
+
+        })
+    })
+</script>
+
+</html>

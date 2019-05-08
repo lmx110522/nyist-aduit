@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>待审核教研室列表</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href=" /css/base.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+        <div class="main-content">
+        <!-- 头部链接位置导航条 -->
+        <div class="filter-bar">
+            <span>
+                <a href="">待我审核任务列表</a>
+            </span>
+        </div>
+
+        <!-- 主显示区 -->
+        <div class="main">
+            <table id="table-jysck"></table>
+
+            <!-- 模态框 -->
+            <div class="modal fade" id="rjxy" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title">
+                                点击查看详情查看教研室详情
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <table id="yoyoyo"></table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="submit-room btn btn-primary" data-dismiss="modal">
+                                确认提交
+                            </button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+        </div>
+        <!-- main显示主区 -->
+</body>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table-zh-CN.min.js"></script>
+<script src="/js/base.js"></script>
+<script>
+    window.operateEvents = {
+        'click .toreviewevent': function (e, value, row, index) {
+            $("#" + row.class).modal('show');
+            console.log(row.class)
+
+        },
+        'click .gotolinkevent': function (e, value, row, index) {
+            $("#" + row.class).modal('show');
+            alert(row.id)
+
+        }
+    }
+    $(function () {
+        $.getJSON("/shr/myTaskList",function (result) {
+            if(result.status == 200){
+                var taskLists = result.data;
+                var data=[];
+                for(var i = 0;i < taskLists.length;i++){
+
+                    var arr = {
+                        "class":taskLists[i].userModule.id,
+                        "isFrom":taskLists[i].xyUser.username,
+                        "jysName":taskLists[i].jysUser.username,
+                        "yourModel":taskLists[i].module.mname
+                    }
+                    data.push(arr);
+                }
+                console.log(data);
+            }
+            $('#table-jysck').bootstrapTable({
+                cache: false,   //缓存
+                pagination: true,   //分页
+                pageSize: 5, //默认一页几条
+                pageList: [5, 10], //备选显示条数
+                search: true,  //开启查找
+                showRefresh: true,
+                striped: true,
+                uniqueID: "jysName",
+                columns: [{
+                    field: 'jysName',
+                    title: '教研室名称'
+                }, {
+                    field: 'isFrom',
+                    title: '所属院系',
+                }, {
+                    field: 'yourModel',
+                    title: '审核模块',
+                    sortable: true,
+                    sortOrder: "asc",
+                }, {
+                    field: 'mydo',
+                    title: '操作',
+                    width: '15%',
+                    formatter: toreview,
+                    events: operateEvents,
+                }
+                ],
+                data:data,
+                dataType: "json"
+            });
+        });
+
+    })
+    function toreview(value, row, index) {
+        return [
+            '<a href="/shr/doTaskUI?umid='+row.class+'"><button class="btn btn-default toreviewevent">去审核</button></a>'
+        ].join("")
+    }
+
+    //查看教研室模态框
+</script>
+
+</html>

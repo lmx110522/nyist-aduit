@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教研室详情查看</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/sweetalert/sweetalert.css">
+    <style>
+        .main .xiala .filebox {
+            position: relative;
+            /* margin-top:35px; */
+            height: 700px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+        li{
+            list-style-type: none;
+        }
+        .main .xiala .filebox .file-box-son {
+            position: relative;
+            display: inline-block;
+            width: 66%;
+        }
+
+        .main .xiala .filebox .filedownbtn {
+            position: absolute;
+            right: -70px;
+            top: 0;
+        }
+
+        .main .tab-content .infor {
+            position: relative;
+            margin-left: 50px;
+        }
+
+        .main .tab-content h3 {
+            color: rgb(61, 107, 124);
+            text-align: center;
+        }
+        #notice{
+            color: firebrick;
+            font-size: 20px;
+            font-weight: bolder;
+            position: absolute;
+            left: 185px;
+            top: 60px;
+        }
+        #goBack{
+            position: fixed;
+            top: 98px;
+            left: 1950px;
+            border-radius: 5px;
+            border: 1px solid whitesmoke;
+            width: 50px;
+            height: 38px;
+            line-height: 28px;
+            text-align: center;
+            background-color: #5BC0DE;
+            color: whitesmoke;
+        }
+        .main .xiala .filebox .fileDel{
+            position: absolute;
+            right: -130px;
+            background-color: firebrick;
+            top: 0;
+        }
+        .modal{
+            margin-top: 100px;
+        }
+        #div1{
+            width: 100%;
+            height: 50px;
+        }
+        #div1 span{
+            color: white;
+            background-color: #337AB7;
+            padding:7px 25px 7px 25px;
+            margin-top: 16px;
+            display: inline-block;
+        }
+        #div2{
+            width: 100%;
+            border-top: 1px solid #c1c3c7;
+            height: auto;
+        }
+        #div2 .bigImage{
+            height: 450px;
+            width: 420px;
+            margin: 15px;
+        }
+        #div2 .smallImage{
+            height: 450px;
+            width: 100px;
+            position: absolute;
+            right: 30px;
+            top: 81px;
+        }
+        #div2 .smallImage li{
+            height: 80px;
+            margin-top: 9px;
+            width: 98px;
+        }
+        #div2 .smallImage li img{
+            width: 100%;
+            height: 100%;
+        }
+        .showImage{
+            position: absolute;
+            right: 10px;
+            top: 20px;
+            background-color: #31B0D5;
+            height: 30px;
+            border: 1px solid whitesmoke;
+        }
+        .addDelButton{
+            background: rgba(245,238,238,0.7);
+            position: absolute;
+            color: #e63a06;
+            font-weight: bolder;
+            font-size: 27px;
+            height: 85px;
+            width: 99px;
+            z-index: 2;
+            top: 8px;
+            left: 0px;
+        }
+    </style>
+</head>
+
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/node_modules/chosen-js/chosen.jquery.min.js"></script>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/sweetalert/sweetalert.min.js"></script>
+<script src="/sweetalert/xlalert.js"></script>
+<script src="/js/base.js"></script>
+<body>
+<div class="myIdea">
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+        <span id="no_use" style="display: none">
+            <#if uid??>
+                ${uid}
+                <#else>
+                    ${user.id}
+            </#if>
+        </span>
+        <div class="main-content">
+        <!-- 头部链接位置导航条 -->
+        <div class="filter-bar">
+            <span>
+                <a href="">教研室详情查看</a>
+            </span>
+            <button id="goBack"  onClick="javascript :history.back(-1);">返回</button>
+            <div class="form-inline select-bar">
+                <select id="selectYear" class="form-control">
+                    <#list yearList as year>
+                        <option value="${year}">${year}~${(year+1)}年度</option>
+                    </#list>
+                </select>
+                <button type="button" class="btn btn-info yearSearch">检索</button>
+            </div>
+
+        </div>
+
+
+        
+
+        <!-- 主显示区 -->
+        <div class="main">
+            <div class="xiala">
+                <span id="no_use_role" style="display: none">${user.role}</span>
+                <ul id="myTab" class="nav nav-tabs">
+                    <#list moduleList as module>
+                        <li>
+                            <a href="#class1" id="${module.id}" data-toggle="tab">${(module.mname)!'无模块名字'}</a>
+                        </li>
+                    </#list>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade in active" id="class1">
+                        <div class="form-group col-xs-4 filebox">
+                            <span style="display: none" id="no_use_id"></span>
+                            <h3 id="filesList"><span id="jysName"></span>文件下载查看</h3>
+                            <button type="button"        class="submit-room btn btn-primary showImage" data-dismiss="modal">照片查看</button>
+                            <span id="notice"></span>
+                        </div>
+                        <div class="shenhe-info col-xs-4">
+                            <h3><span class="module_name"></span>模块审核记录</h3>
+                            <div class="content-form">
+                                <form class="userinfoform form-horizontal">
+                                    <div class="form-group">
+                                        <label for="username" class="col-sm-3 control-label">审核人:</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="username" disabled placeholder="无审核人">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="shenhe-block" class="col-sm-3 control-label">审核模块:</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control"  id="shenhe-block" disabled placeholder="审核模块">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="score" class="col-sm-3 control-label">模块分数:</label>
+                                        <div class="col-md-8">
+                                            <input onchange="isfitnum(this);" type="number" class="form-control"  id="score" disabled placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="info-message" class="col-sm-3 control-label">审核人点评:</label>
+                                        <div class="col-md-8">
+                                            <textarea style="resize:none;" type="text" rows="8" class="form-control" id="info-message" disabled placeholder="暂时没有点评~"></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="infor col-xs-3">
+                            <h3><span class="module_name"></span>模块细则说明：</h3>
+                            <p><span id="module_content"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+            <span id="no_use_role11" style="display: none;">${user.role}</span>
+    <!-- main显示主区 -->
+            <div class="modal fade" id="rjxy" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title">
+                                上传照片预览
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="div1">
+                                <span>大图</span>
+                            </div>
+                            <div id="div2">
+                                <div class="bigImage"><img src="" style="width: 100%;height: 100%"></div>
+                                <ul class="smallImage">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+</div>
+</body>
+<script>
+  $(function () {
+      $('#div2 .smallImage').empty();
+      $('#myTab li:first').addClass('active');
+      var id = $('#no_use').text().trim();
+      var selectYear = $('#selectYear').val();
+
+      $.getJSON('/jys/jysAllMsg','id='+id+'&year='+selectYear,function (result) {
+
+          if(result.status == 200){
+              var jysOneModuleMsg = result.data;
+              getAllData(jysOneModuleMsg);
+          }
+      });
+      $('#div2 .smallImage').delegate('li button','click',function () {
+          var id = $(this).parent('li').attr('id');
+          var $that = $(this);
+          $.getJSON('/jys/deleteDocument','id='+id,function (result) {
+              if(result.status == 200){
+                  $that.parent('li').remove();
+                 var len =  $('#div2 .smallImage li').length;
+                 if(len > 0){
+                     var imageSrc = $('#div2 .smallImage li:first img').attr('src');
+                     $('.bigImage img').attr('src',imageSrc);
+
+                 }
+                 else{
+                     $('.modal-footer button').click();
+                 }
+              }
+              else{
+                  zlalert.alertInfo(result.msg);
+              }
+          })
+      })
+      $('#div2 .smallImage').delegate('li','mouseenter',function () {
+         var role =  $("#no_use_role11").text();
+         if(role == 4){
+             console.log('划入')
+             $(this).parents('.smallImage').find('button').remove();
+             var x =  (($(this).index())*90+8);
+             $(this).append('<button class="addDelButton" style="top: '+x+'px;">删除</button>');
+         }
+          var imageSrc = $(this).children('img').attr('src');
+          $('.bigImage img').attr('src',imageSrc);
+      })
+
+      $('#div2 .smallImage').delegate('li','mouseleave',function () {
+          var role =  $("#no_use_role11").text();
+          if(role == 4) {
+              $(this).parents('.smallImage').find('button').remove();
+          }
+      })
+
+      $('.bigImage').dblclick(function () {
+          var imgSrc = $(this).children('img').attr('src');
+          window.open(""+imgSrc, "_blank");
+      })
+      $('#myTab li').click(function () {
+          var selectYear = $('#selectYear').val();
+          var mid = $(this).children('a').attr('id');
+          $.getJSON('/jys/jysAllMsg','id='+id+"&mid="+mid+'&year='+selectYear,function (result) {
+              if(result.status == 200){
+                  var jysOneModuleMsg = result.data;
+                  getAllData(jysOneModuleMsg);
+              }
+          })
+      })
+      $('.yearSearch').click(function () {
+          var mid = $('#myTab li.active a').attr('id');
+          var selectYear = $('#selectYear').val();
+          $.getJSON('/jys/jysAllMsg','id='+id+'&year='+parseInt(selectYear)+'&mid='+mid,function (result) {
+              if(result.status == 200){
+                  var jysOneModuleMsg = result.data;
+                  getAllData(jysOneModuleMsg);
+              }
+          });
+      });
+      $('.filebox').delegate('.filedownbtn','click',function () {
+         var uploadUrl = $(this).attr('uploadUrl');
+         window.open(""+uploadUrl, "_blank");
+//         window.location.href = ""+uploadUrl;
+      })
+      $('.filebox').delegate('.fileDel','click',function () {
+          var $that = $(this);
+          var fileId = $(this).attr('fileId');
+              $.post("/jys/deleteDocument","id="+fileId,function (result) {
+                  console.log(result)
+                  if(result.status == 200){
+                      $that.parents('.file-box-son').remove();
+                  }
+                  else{
+                      zlalert.alertInfo(result.msg);
+                  }
+              })
+      })
+      $('.showImage').click(function () {
+          $('#div2 .smallImage').empty();
+            var id = $('#no_use_id').text();
+            var year = $('#selectYear').val();
+            $.getJSON('/jys/getAllImages','id='+id+'&year='+year,function (result) {
+                if(result.status == 200){
+                    var resultData = result.data;
+                    for(var i = 0;i < resultData.length;i++){
+                        var imgRUL = resultData[i].imgUrl;
+                        var id = resultData[i].id;
+                        $('#div2 .smallImage').append('<li id="'+id+'"><img src="'+imgRUL+'" style="height: 80px;width: 98px"></li>');
+                    }
+                    var imageSrc =  $('#div2 .smallImage li:first img').attr('src');
+                    $('.bigImage img').attr('src',imageSrc);
+                    $("#rjxy").modal('show');
+                }
+                else{
+                    zlalert.alertInfo('暂时还没有上传的照片');
+                }
+            })
+      })
+  })
+
+
+    function getAllData(jysOneModuleMsg) {
+        $('.showImage').hide();
+        $('#username').val('');
+        $('#score').val('');
+        $("#info-message").text('');
+        $('#notice').text('');
+        $('#jysName').text(jysOneModuleMsg.user.username);
+        $('#no_use_id').text(jysOneModuleMsg.user.id);
+        $('#filesList').siblings('div').remove();
+        var documentLists = jysOneModuleMsg.documentList;
+        if(documentLists != null && documentLists.length > 0){
+            var len = documentLists.length;
+            for(var i = 0;i < documentLists.length;i++){
+                $('#filesList').after(' <div class="file-box-son">\n' +
+                    '                                <div class="input-group">\n' +
+                    '                                    <label class="input-group-addon" >'+(len)+'</label>\n' +
+                    '                                    <input type="text" class="form-control" value="'+documentLists[i].dname+'"  placeholder="文件名" disabled>\n' +
+                    '                                </div>\n' +
+                    '                                <button class="btn btn-primary filedownbtn" uploadUrl="'+documentLists[i].fileUrl+'" >下载</button>\n' +
+                    '                                <button class="btn btn-primary fileDel" fileId="'+documentLists[i].id+'" >删除</button>\n' +
+                    '                            </div>');
+                len--;
+            }
+        }
+        else{
+            $('#notice').text('(无上传文件)');
+        }
+        $('.module_name').text(jysOneModuleMsg.module.mname);
+        $('#module_content').text(jysOneModuleMsg.module.content);
+        $('#shenhe-block').val(jysOneModuleMsg.module.mname);
+        if(jysOneModuleMsg.userModule != null){
+            $('#username').val(jysOneModuleMsg.userModule.tUserByTuid.username);
+            $('#score').val(jysOneModuleMsg.userModule.score);
+            $("#info-message").text(jysOneModuleMsg.userModule.content);
+
+        }
+        $('#selectYear').val([jysOneModuleMsg.year]);
+        if(jysOneModuleMsg.module.id == 'f44f82c0e71a61a0'){
+            $('.showImage').show();
+        }
+        if($('#no_use_role').text() == '1' || $('#no_use_role').text() == '2'){
+            $('.fileDel').hide();
+        }
+    }
+</script>
+
+</html>
+

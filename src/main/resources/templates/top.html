@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>头部页面</title>
+    <!--<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <style>
+        .zhToDo {
+            text-align: center
+        }
+
+        .zhToDo .title {
+            margin-top: 0
+        }
+
+        .switch {
+            float: right;
+            margin-top: 12px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .mydisabled, .mydisable :hover {
+            background-color: #666
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <a id="index" class="navbar-brand" href="/index">
+        <img src="/images/loginui.png" alt="">
+    </a>
+    <div class="navbar-nav">
+        <a href="/loginout">
+            <li>退出登录
+                <span class="glyphicon glyphicon-remove-sign"></span>
+            </li>
+        </a>
+
+        <a href="#" data-toggle="dropdown">
+            <li class="dropdown">
+                <span>${(user.username)!"未知用户"}</span>
+                <span class="glyphicon glyphicon-user"></span>
+
+            </li>
+        </a>
+        <a href="#" data-toggle="dropdown">
+            <li class="dropdown">
+                <span class="aa">时间：</span>
+                <span class="glyphicon  time"></span>
+            </li>
+        </a>
+    </div>
+    <#if user??>
+        <#if (user.role) == 1 || (user.role==0)>
+            <button class="btn btn-success switch" id="shenheSwitchBtn" status="0">开启审核通道</button>
+            <button class="btn btn-success switch" id="upSwitchBtn" status="0">开启上传通道</button>
+        </#if>
+    </#if>
+
+    <#if user.isOk == 2>
+        <span class="button_status" style="display: none">0_0</span>
+        <#elseif user.isOk == 3>
+            <span class="button_status" style="display: none">0_1</span>
+            <#else>
+                <span class="button_status" style="display: none">1_0</span>
+    </#if>
+
+</div>
+</body>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/node_modules/moment/moment.js"></script>
+<script src="/node_modules/moment/locale/zh-cn.js"></script>
+<link rel="stylesheet" href="/css/base.css">
+<script>
+    var time;
+    function getTime() {
+        setInterval(function () {
+            time = moment().format('YYYY-MM-DD HH:mm:ss');
+            $('.time').text(time);
+        },100)
+    }
+    $('#shenheSwitchBtn').click(function() {
+        var preStatus = $('#shenheSwitchBtn').attr('status');
+        if ($('#shenheSwitchBtn').hasClass('btn-success')) {
+            $('#shenheSwitchBtn').attr('status','1');
+        } else {
+            $('#shenheSwitchBtn').attr('status','0');
+        }
+        var isok=0;
+        var allStatus = getButtonStatus();
+        if(allStatus =='0_0'){
+            isok = 2;
+        }
+        else if(allStatus == '0_1'){
+            isok = 3;
+        }
+        else if(allStatus == '1_0'){
+            isok = 4;
+        }
+        else{
+            isok = 0;
+            $('#shenheSwitchBtn').attr('status',preStatus);
+            zlalert.alertError('上传和审核不可以同时进行！');
+        }
+        if(isok != 0){
+            if ($('#shenheSwitchBtn').hasClass('btn-success')) {
+
+                $.getJSON('/user/isOpenShenHe',function (result) {
+                    if(result.status != 200){
+                        var resultData = result.data;
+                        var str="<<  ";
+                        for(var i = 0;i < resultData.length;i++){
+                            str+=resultData[i].mname+" ";
+                        }
+                        str+=">>"
+                        zlalert.alertConfirm({'msg':"你的理科或文科审核人模块"+str+"还没有分配审核人，是否强制开启审核",'confirmCallback':function () {
+                            $.getJSON("/user/openShenHe",function (result) {
+                                if(result.status == 200){
+                                    $('#shenheSwitchBtn').removeClass('btn-success').addClass('btn-danger')
+                                    $('#shenheSwitchBtn').html('关闭审核通道');
+                                    zlalert.alertSuccessToast("开启审核通道成功！！！");
+                                    $.getJSON('/user/changeIsok','isok='+parseInt(isok),function (result) {
+                                        if(result.status == 200){
+
+                                        }
+                                        else{
+                                            zlalert.alertError(result.msg);
+                                        }
+                                    })
+                                }
+                            })
+                        }});
+                    }
+                    else{
+                        $.getJSON("/user/openShenHe",function (result) {
+                            if(result.status == 200){
+                                $('#shenheSwitchBtn').removeClass('btn-success').addClass('btn-danger')
+                                $('#shenheSwitchBtn').html('关闭审核通道');
+                                zlalert.alertSuccessToast("开启审核通道成功！！！");
+                                $.getJSON('/user/changeIsok','isok='+parseInt(isok),function (result) {
+                                    if(result.status == 200){
+
+                                    }
+                                    else{
+                                        zlalert.alertError(result.msg);
+                                    }
+                                })
+                            }
+                        })
+                    }
+
+                })
+            } else {
+                $.getJSON("/user/isCloseShenHe",function (result) {
+                    if(result.status != 200 ){
+                        var resultData = result.data;
+                        var str="(  ";
+                        for(var i = 0;i < resultData.length;i++){
+                            str+=resultData[i].tUserByTuid.username+" ";
+                        }
+                        str+=")"
+                        zlalert.alertConfirm({'msg':"目前还有"+str+"这些人还没有审核，是否强制关闭审核",'confirmCallback':function () {
+                            $.getJSON("/user/closeShenHe",function (result) {
+                                if(result.status == 200){
+                                    $('#shenheSwitchBtn').removeClass('btn-danger').addClass('btn-success')
+                                    $('#shenheSwitchBtn').html('开启审核通道');
+                                    zlalert.alertSuccess("关闭审核通道成功！！！");
+                                    $.getJSON('/user/changeIsok','isok='+parseInt(isok),function (result) {
+                                        if(result.status == 200){
+
+                                        }
+                                        else{
+                                            zlalert.alertError(result.msg);
+                                        }
+                                    })
+                                }
+                                else{
+                                    zlalert.alertError('关闭失败');
+                                }
+                            })
+                        }});
+                    }
+                    else{
+                        $.getJSON("/user/closeShenHe",function (result) {
+                            if(result.status == 200){
+                                $('#shenheSwitchBtn').removeClass('btn-danger').addClass('btn-success')
+                                $('#shenheSwitchBtn').html('开启审核通道');
+                                zlalert.alertSuccess("关闭审核通道成功！！！");
+                                $.getJSON('/user/changeIsok','isok='+parseInt(isok),function (result) {
+                                    if(result.status == 200){
+
+                                    }
+                                    else{
+                                        zlalert.alertError(result.msg);
+                                    }
+                                })
+                            }
+                            else{
+                                zlalert.alertError('关闭失败');
+                            }
+                        })
+                    }
+                })
+
+            }
+
+        }
+
+    })
+
+    $('#upSwitchBtn').click(function () {
+        var preStatus = $('#upSwitchBtn').attr('status');
+        if ($('#upSwitchBtn').hasClass('btn-success')) {
+            $('#upSwitchBtn').attr('status','1');
+        } else {
+            $('#upSwitchBtn').attr('status','0');
+        }
+        var isok=0;
+        var allStatus = getButtonStatus();
+        if(allStatus =='0_0'){
+            isok = 2;
+        }
+        else if(allStatus == '0_1'){
+            isok = 3;
+        }
+        else if(allStatus == '1_0'){
+            isok = 4;
+        }
+        else{
+            isok = 0;
+            $('#upSwitchBtn').attr('status',preStatus);
+            zlalert.alertError('上传和审核不可以同时进行！');
+
+        }
+        if(isok != 0){
+            if ($('#upSwitchBtn').hasClass('btn-success')) {
+                $('#upSwitchBtn').removeClass('btn-success').addClass('btn-danger')
+                $('#upSwitchBtn').html('关闭上传通道');
+            } else {
+                $('#upSwitchBtn').removeClass('btn-danger').addClass('btn-success')
+                $('#upSwitchBtn').html('开启上传通道');
+            }
+            $.getJSON('/user/changeIsok','isok='+parseInt(isok),function (result) {
+                if(result.status == 200){
+//                    judgeButtonText();
+                    zlalert.alertSuccess('操作成功');
+                }
+                else{
+                    zlalert.alertError(result.msg);
+                }
+            })
+        }
+    })
+    $(function () {
+        getTime();
+        judgeButtonText();
+    })
+
+    function judgeButtonText() {
+        var button_status = $('.button_status').text();
+        $('#upSwitchBtn').attr('status',button_status.split('_')[0]);
+        $('#shenheSwitchBtn').attr('status',button_status.split('_')[1]);
+        if($('#shenheSwitchBtn').attr('status') == 0){
+            $('#shenheSwitchBtn').removeClass('btn-danger').addClass('btn-success');
+            $('#shenheSwitchBtn').text('开启审核通道');
+            $('#shenheSwitchBtn').attr('status','0');
+
+
+        }else{
+            $('#shenheSwitchBtn').removeClass('btn-success').addClass('btn-danger');
+            $('#shenheSwitchBtn').text('关闭审核通道');
+            $('#shenheSwitchBtn').attr('status','1');
+
+        }
+        if($('#upSwitchBtn').attr('status') == 0){
+            $('#upSwitchBtn').removeClass('btn-danger').addClass('btn-success');
+            $('#upSwitchBtn').text('开启上传通道');
+            $('#upSwitchBtn').attr('status','0');
+        }else{
+            $('#upSwitchBtn').removeClass('btn-success').addClass('btn-danger');
+            $('#upSwitchBtn').text('关闭上传通道');
+            $('#upSwitchBtn').attr('status','1');
+        }
+    }
+    function  getButtonStatus() {
+        var up = $('#upSwitchBtn').attr('status');
+        var shenHe =  $('#shenheSwitchBtn').attr('status');
+        return up+'_'+shenHe;
+    }
+</script>
+
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>系院账号管理</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/base.css">
+    <style>
+        .main .xiala .nav{
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+        <div class="main-content">
+        <!-- 头部链接位置导航条 -->
+        <div class="filter-bar">
+            <span>
+                <a href="">教研室审核记录</a>
+            </span>
+        </div>
+            <span id="no_user" style="display: none">${k!'-1'}</span>
+        <!-- 主显示区 -->
+        <div class="main">
+            <div class="xiala">
+                <ul id="myTab" class="nav nav-tabs">
+                    <#list (approveRecord.moduleList) as module>
+                        <li>
+                            <a href=".class1" data-toggle="tab" class="${module.id}">
+                                ${module.mname}
+                            </a>
+                        </li>
+                    </#list>
+
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade in active class1">
+                        <div class="content-form">
+                            <form class="userinfoform form-horizontal">
+                                <div class="form-group">
+                                    <label for="username" class="col-sm-2 control-label">审核人:</label>
+                                    <div class="col-md-4">
+                                        <input type="username" class="form-control" value="${(approveRecord.userModule.tUserByUid.username)!'还没有审核'}" id="username" disabled placeholder="审核人姓名">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="shenhe-block" class="col-sm-2 control-label">审核模块:</label>
+                                    <div class="col-md-4">
+                                        <input type="username" class="form-control" value="${(approveRecord.userModule.moduleByMid.mname)!'此模块'}" id="shenhe-block" disabled placeholder="制度建设">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="score" class="col-sm-2 control-label">分数:</label>
+                                    <div class="col-md-4">
+                                        <input onchange="isfitnum(this);" type="number" class="form-control" value="${(approveRecord.userModule.score)!'0'}" id="score" disabled placeholder="13">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="info-message" class="col-sm-2 control-label">点评:</label>
+                                    <div class="col-md-4">
+                                        <textarea style="resize:none;" type="text" rows="8" class="form-control" id="info-message" disabled placeholder="写点你的看法或意见吧~">${(approveRecord.userModule.content)!'还没有审核呢'}</textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main显示主区 -->
+</body>
+<script src="/js/base.js"></script>
+<script>
+    $(function () {
+        var k = $('#no_user').text();
+        console.log(k);
+        if(k != -1){
+            $("#myTab li:eq("+k+")").addClass("active");
+        }
+        else{
+            $("#myTab li:first").addClass("active");
+        }
+
+        $("#myTab li").each(function (k,v) {
+            $(this).children("a").click(function () {
+                var mid = $(this).attr("class");
+                console.log(k);
+                window.location.href="/jys/approveRecord?mid="+mid+"&k="+k;
+            })
+        })
+    })
+</script>
+</html>

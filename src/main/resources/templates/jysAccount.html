@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教研室账号管理</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/account-xy.css">
+    <link rel="stylesheet" href="/node_modules/chosen-js/chosen.min.css">
+    <style>
+        .addJys{
+            position: absolute;
+            right: 50px;
+        }
+        .add{
+            position: absolute;
+            right: 120px;
+        }
+        .main .mybtn{
+            position: absolute;
+            left: 300px;
+            top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+        <!-- 头部导航 -->
+        <#include "top.html">
+        <!-- 头部导航 结束-->
+
+        <!--左侧导航条-->
+        <#include "left.html">
+        <!-- 左侧导航条结束 -->
+
+
+        <div class="main-content">
+        <!-- 头部链接位置导航条 -->
+        <div class="filter-bar">
+            <span>
+                <a href="">账号管理</a>
+            </span>
+            <span>></span>
+            <span><a href="">教研室账号管理</a></span>
+        </div>
+
+        <!-- 主显示区 -->
+        <div class="main">
+
+            <div class="table-content">
+                <span>添加或修改教研室账号</span>
+                <table class="table table-hover table-bordered ">
+                    <thead>
+                        <tr>
+                            <th>教研室名称</th>
+                            <th>教研室账号</th>
+                            <th>密码(初始密码:123456)</th>
+                            <th>教研室所属院系</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="mytable">
+                        <#list userList as user>
+                                <tr class="mytabletr">
+                                    <td>
+                                        <input type="text" id="username" name="username" class="form-control" value="${(user.username)!'无名称'}" placeholder="教研室名称" disabled>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="usernumber" oninput="checkUserNumber(this)" name="usernumber" class="form-control usernumber"value="${(user.usernumber)!'无账号'}"  placeholder="教研室账号" disabled>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary myId" style="width: 100%;" id="${(user.id)!''}" onclick="resetPassword(${(user.id)!''})">重置密码</button>
+                                    </td>
+                                    <td>
+                                        <select class="xyselect" title="" name="tuserByParentId" data-placeholder="选择教研室所属院系" >
+                                            <#list userList1 as user1>
+                                                <option value="${user1.id}" <#if user1.id == user.tuserByParentId.id>selected</#if>>${user1.username}</option>
+                                            </#list>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary edit editJys" type="button">修改</button>
+
+                                        <button class="myremove btn btn-danger">删除</button>
+                                    </td>
+                                </tr>
+                        </#list>
+                    </tbody>
+                </table>
+                <div class="mybtn">
+                    <button id="addNewAccount" class="btn btn-primary add">添加新的教研室</button>
+                    <form action="/accounts/addJys" method="post" id="myForm" onsubmit="return checkAll()">
+                        <button type="submit" class="btn btn-default addJys">提交</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main显示主区 -->
+</body>
+<link rel="stylesheet" href="/sweetalert/sweetalert.css">
+<script src="/sweetalert/sweetalert.min.js"></script>
+<script src="/sweetalert/xlalert.js"></script>
+<script src="/js/paginathing.min.js"></script>
+<script src="/js/base.js"></script>
+<script src="/node_modules/chosen-js/chosen.jquery.min.js/"></script>
+
+<script>
+    var usernumberAll;
+    $(function () {
+        $(".chosen-container-single").mouseover(function () {
+            $(this).css('pointer-events',"none")
+        })
+        $('.edit').click(function () {
+            if($(this).hasClass('editJys')){
+
+                $(this).parent("td").prev("td").find(".chosen-container-single").unbind("mouseover")
+                $(this).parent("td").prev("td").find(".chosen-container-single").css('pointer-events',"all")
+                usernumberAll = $(this).parents('.mytabletr').find('#usernumber').val();
+                $(this).removeClass('editJys');
+                var parents = $(this).parents('.mytabletr');
+                parents.find('.form-control').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                parents.find('.xyselect').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                parents.find('.chosen-container').each(function () {
+                    $(this).removeClass('chosen-disabled');
+                });
+                $(this).html("确认修改");
+            }
+           else{
+                $(this).parent("td").prev("td").find(".chosen-container-single").mouseover(function () {
+                    $(this).css('pointer-events',"none")
+                })
+                var $that = $(this);
+                var username = $that.parents('.mytabletr').find('#username').val();
+
+                var usernumber =  $that.parents('.mytabletr').find('#usernumber').val();
+
+                var xyid =  $that.parents('.mytabletr').find('select option:selected').val();
+
+                var id =  $that.parents('.mytabletr').find('.myId').attr("id");
+                if(usernumber != ''){
+                    $.post("/accounts/editJys","id="+id+"&username="+username+"&usernumber="+usernumber+"&tuserByParentId.id="+xyid,function (result) {
+                        if(result.status == 200){
+                            $that.addClass('editJys');
+                            var parents = $that.parents('.mytabletr');
+                            parents.find('.form-control').each(function () {
+                                $(this).attr('disabled','disabled');
+                            });
+                            parents.find('.xyselect').each(function () {
+                                $(this).attr('disabled','disabled');
+                            });
+                            $that.html("修改");
+                            zlalert.alertSuccess("教研室账号修改完成!");
+                        }
+                        else{
+                            zlalert.alertError(result.msg);
+                        }
+                    })
+                }else{
+                    $that.parents('.mytabletr').find('.usernumber').focus();
+                }
+
+            }
+        });
+    });
+
+
+
+    $('#mytable').delegate('.usernumber','focus',function () {
+        usernumberAll = $(this).val();
+        console.log('usernumberAll='+usernumberAll);
+    })
+
+
+
+    $('.usernumber').focus(function () {
+        usernumberAll = $(this).val();
+        console.log('usernumberAll='+usernumberAll);
+    })
+
+
+    var x = $(".mytabletr").length;
+    $("body").on("click", ".myremove", function (e) { //user click on remove text
+        if (x > 0) {
+            var username = $(this).parents('.mytabletr').find('#username').val();
+            var id =  $(this).parents('.mytabletr').find('.myId').attr("id");
+            if(id != undefined){
+                zlalert.alertConfirm({'msg':'你确定要删除 '+username+' 教研室吗？'});
+                $('.confirm').click(function () {
+                    $.post("/accounts/delete","id="+id,function (result) {
+                        if(result.status == 200){
+                            $(this).parent('td').parent('tr').remove(); //remove text box
+                            x--; //decrement textbox
+                            location.reload();
+                        }
+                    })
+                })
+            }
+            else{
+                $(this).parent('td').parent('tr').remove(); //remove text box
+                x--; //decrement textbox
+                $('nav.table-content').remove()
+                jQuery(document).ready(function ($) {
+                    $('.table tbody').paginathing({
+                        perPage: 10,
+                        containerClass: 'table-content',
+                        insertAfter: '.table',
+                        prevText: '上一页',
+                        nextText: '下一页',
+                        firstText: '最前',
+                        lastText: '最后',
+                    })
+                    var currentpage = $('nav.table-content>ul>li.page>a:last')
+                    currentpage.click()
+                });
+            }
+        }
+        return false;
+    })
+
+    $("#addNewAccount").on('click', function (e) {
+        $.getJSON("/accounts/findAllxy",function (result) {
+
+        var htmladd = "";
+        htmladd += '<tr class="mytabletr">';
+        htmladd += '<td><input type="text" name="usernames" form="myForm" class="form-control"></td>';
+        htmladd += '<td><input type="text" name="usernumbers" oninput="checkUserNumber(this)" form="myForm" class="form-control usernumber"></td>';
+        htmladd += '<td><button class="btn btn-primary myId new"  style="width: 100%;"  onclick="resetPassword(${(user.id)})">重置密码</button>';
+        htmladd += '<td><select class="xyselect" title="" name="parentIds" form="myForm"  data-placeholder="选择教研室所属院系" >';
+        for(var i = 0;i < result.data.length;i++){
+            htmladd += '<option value="'+result.data[i].id+'">'+result.data[i].username+'</option>';
+        }
+
+        htmladd +='</select></td>';
+        htmladd += '<td><button class="btn btn-primary">修改</button><button class="myremove btn btn-danger">删除</button></td>';
+        htmladd += ' </tr>';
+        $("#mytable").append(htmladd);
+        x++;
+        $('.xyselect').chosen({
+            width: '100%', //设置select宽度
+        })
+        $(".xyselect").trigger("chosen:updated");
+
+        $('nav.table-content').remove()
+        jQuery(document).ready(function ($) {
+            $('.table tbody').paginathing({
+                perPage: 10,
+                containerClass: 'table-content',
+                insertAfter: '.table',
+                prevText: '上一页',
+                nextText: '下一页',
+                firstText: '最前',
+                lastText: '最后',
+            })
+            var currentpage = $('nav.table-content>ul>li.page>a:last')
+            currentpage.click()
+        });
+    })
+    })
+
+
+
+
+        $('.xyselect').chosen({
+            width: '100%', //设置select宽度
+        });
+
+    jQuery(document).ready(function ($) {
+            $('.table tbody').paginathing({
+                perPage: 10,
+                containerClass: 'table-content',
+                insertAfter: '.table',
+                prevText: '上一页',
+                nextText: '下一页',
+                firstText: '最前',
+                lastText: '最后',
+            })
+        });
+    function resetPassword(uid) {
+        $.post("/user/editPassword","uid="+uid,function (data) {
+            if(data.status == 200){
+                zlalert.alertSuccess("密码成功重置为123456!");
+            }
+        })
+    }
+    function checkUserNumber(obj) {
+        var usernumber = $(obj).val();
+        $(obj).parents(".mytabletr").siblings(".mytabletr").each(function () {
+            if($(this).find(".usernumber").val() == usernumber){
+                zlalert.alertInfo("账号和别的账号"+"出现一样!");
+                $(obj).val("");
+                $(obj).focus();
+
+            }
+        })
+
+        var $that = $(obj);
+        console.log('usernumber='+usernumber);
+        if(usernumber !== usernumberAll){
+            $.getJSON('/accounts/jysIsHas','usernumber='+usernumber,function (result) {
+                if(result.status != 200){
+                    zlalert.alertInfo(result.msg);
+                    $that.val('');
+                }
+            })
+        }
+    }
+    function checkAll() {
+        var flag = 0;
+        $('input:text').not('.chosen-search-input').not('[tabindex]').each(function () {
+            if($(this).val() == ""){
+                flag++;
+            }
+        })
+        if(flag != 0){
+            zlalert.alertInfoToast("请把信息填写完整再提交");
+            return false;
+        }
+        else{
+            var isNew = $('.new');
+           if(isNew.length > 0){
+
+               return true;
+           }
+            return false;
+        }
+    }
+</script>
+</html>
